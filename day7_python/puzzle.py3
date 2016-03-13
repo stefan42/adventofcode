@@ -55,6 +55,8 @@ class UnaryOp:
     raise NotImplementedError()
   def show_op(self):
     raise NotImplementedError()
+  def get_var_name(self):
+    return self._var_name
 
 class IdOp(UnaryOp):
   def do_op(self, value):
@@ -87,6 +89,8 @@ class BinaryOp:
     raise NotImplementedError()
   def show_op(self):
     raise NotImplementedError()
+  def get_var_name(self):
+    return self._var_name
 
 class AndOp(BinaryOp):
   def do_op(self, value1, value2):
@@ -159,26 +163,34 @@ def parse_operation(line):
   print('no match: ' + line)
   return None
 
+def simulate_circuit(circuit_state, all_operations):
+  unprocessed_operations = all_operations
+  while circuit_state.has_changed():
+    circuit_state.reset_changed()
+    unprocessed_operations = list(filter(lambda o: not o.calc_result(circuit_state), unprocessed_operations))
+  if (len(unprocessed_operations) > 0):
+    print('WARNING: there are remaining_operations!')
+    for operation in unprocessed_operations:
+      print(operation.show_op())
+  return circuit_state
+
 def main():
   f = open('input.txt','r')
-  remaining_operations = []
+  all_operations = []
   for line in f:
     operation = parse_operation(line)
     if operation:
-      remaining_operations.append(operation)
-  circuit_state = CircuitState()
-  while circuit_state.has_changed():
-    circuit_state.reset_changed()
-    unprocessed_operations = []
-    for operation in remaining_operations:
-      if not operation.calc_result(circuit_state):
-        unprocessed_operations.append(operation)
-    remaining_operations = unprocessed_operations
-  if (len(remaining_operations) > 0):
-    print('WARNING: there are remaining_operations!')
-    for operation in remaining_operations:
-      print(operation.show_op())
+      all_operations.append(operation)
+  circuit_state = simulate_circuit(CircuitState(), all_operations)
   circuit_state.print_values()
-  print('Wire a: ' + str(circuit_state.get_value('a')))
+  value_a = circuit_state.get_value('a')
+  print('Wire a: ' + str(value_a))
+  new_operations = list(filter(lambda o: not o.get_var_name() == 'b', all_operations))
+  new_operations.append(IdOp(Value(value_a), 'b'))
+  new_circuit_state = simulate_circuit(CircuitState(), new_operations)
+  new_circuit_state.print_values()
+  value_a = new_circuit_state.get_value('a')
+  print('Wire a: ' + str(value_a))
+  
 
 main()
