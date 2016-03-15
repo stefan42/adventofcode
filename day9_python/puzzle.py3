@@ -35,11 +35,15 @@ def calc_distance(dist_map, cities):
 def solve_it(dist_map, city_set):
   perms = itertools.permutations(city_set)
   shortest_dist = None
+  longest_dist = None
   for p in perms:
     dist = calc_distance(dist_map, p)
     if (not shortest_dist) or (shortest_dist > dist):
         shortest_dist = dist
+    if (not longest_dist) or (longest_dist < dist):
+        longest_dist = dist
   print(shortest_dist)
+  print(longest_dist)
       
       
 
