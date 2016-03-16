@@ -20,7 +20,7 @@ def play_look_and_say(line):
 def main():
   r = '1113222113'
   c = 0
-  while c < 40:
+  while c < 50:
     r = play_look_and_say(r)
     print(str(c) + ": " + str(len(r)))
     c += 1
