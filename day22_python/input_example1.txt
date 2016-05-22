@@ -1,0 +1,2 @@
+hit points: 14
+damage : 8
